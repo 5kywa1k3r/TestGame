@@ -2,6 +2,7 @@ import bases.GameObject;
 import bases.physics.BoxCollider;
 import touhou.GameWindow;
 import touhou.enemies.Enemy;
+import touhou.settings.Settings;
 
 
 /**
@@ -12,4 +13,5 @@ public class Program {
         GameWindow gameWindow = new GameWindow();
         gameWindow.loop();
     }
+
 }

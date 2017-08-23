@@ -6,6 +6,8 @@ import bases.Constraints;
 import touhou.enemies.EnemySpawner;
 import touhou.inputs.InputManager;
 import touhou.players.Player;
+import touhou.scene.Level1Scene;
+import touhou.settings.Settings;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -22,45 +24,38 @@ import java.util.Vector;
  */
 public class GameWindow extends Frame {
 
-    private long lastTimeUpdate;
-    private long currentTime;
-
+    private long lastTimeUpdate, currentTime;
     private BufferedImage blackBackground;
-
     private BufferedImage backbufferImage;
     private Graphics2D backbufferGraphics;
 
-    private BufferedImage background;
 
-    Player player = new Player();
-    EnemySpawner enemySpawner = new EnemySpawner(); // TODO: Viec cua lop: sua thanh game object
 
-    InputManager inputManager = new InputManager();
+    InputManager inputManager = InputManager.instance;
+
+    Level1Scene level1Scene;
 
     public GameWindow() {
         pack();
-        background = SpriteUtils.loadImage("assets/images/background/0.png");
-        addPlayer();
         setupGameLoop();
         setupWindow();
+        setupLevel();
     }
 
-    private void addPlayer() {
-        player.setInputManager(this.inputManager);
-        player.setContraints(new Constraints(getInsets().top, 768, getInsets().left, 384));
-        player.getPosition().set(384 / 2, 580);
-
-        GameObject.add(player);
+    private void setupLevel() {
+        level1Scene = new Level1Scene();
+        level1Scene.init();
     }
+
 
     private void setupGameLoop() {
         lastTimeUpdate = -1;
     }
 
     private void setupWindow() {
-        this.setSize(1024, 768);
+        this.setSize(Settings.instance.getWindowWidth(), Settings.instance.getWindowHeight());
 
-        this.setTitle("Touhou - Remade by QHuyDTVT");
+        this.setTitle("Touhou - Remade by 5kywa1k3r");
         this.setVisible(true);
 
         this.backbufferImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -95,6 +90,7 @@ public class GameWindow extends Frame {
                 inputManager.keyReleased(e);
             }
         });
+        Settings.instance.setWindowInsets(this.getInsets());
     }
 
     public void loop() {
@@ -102,9 +98,7 @@ public class GameWindow extends Frame {
             if (lastTimeUpdate == -1) {
                 lastTimeUpdate = System.nanoTime();
             }
-
             currentTime = System.nanoTime();
-
             if (currentTime - lastTimeUpdate > 17000000) {
                 run();
                 render();
@@ -115,17 +109,11 @@ public class GameWindow extends Frame {
 
     private void run() {
         GameObject.runAll();
-        enemySpawner.spawn();
     }
 
     private void render() {
-
         backbufferGraphics.drawImage(blackBackground, 0, 0, null);
-        backbufferGraphics.drawImage(background, 0, 0, null);
-
         GameObject.renderAll(backbufferGraphics);
-
-
         getGraphics().drawImage(backbufferImage, 0, 0, null);
     }
 }

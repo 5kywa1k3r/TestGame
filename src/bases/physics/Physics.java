@@ -22,9 +22,26 @@ public class Physics {
         return null;
     }
 
+    public static <T extends PhysicsBody> T findObject(Class<T> classz) {
+        for(PhysicsBody body : bodies) {
+            if (body.isActive()) {
+                if (body.getClass().equals(classz)) {
+                    return (T) body;
+                }
+            }
+        }
+
+        return null;
+    }
+
+
     // TODO: collide with many
 
     public static void add(PhysicsBody body) {
         bodies.add(body);
+    }
+
+    public static void clearAll() {
+        bodies.clear();
     }
 }

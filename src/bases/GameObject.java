@@ -2,9 +2,12 @@ package bases;
 
 import bases.physics.Physics;
 import bases.physics.PhysicsBody;
+import bases.pools.GameObjectPool;
 import bases.renderers.ImageRenderer;
 import bases.renderers.Renderer;
+import touhou.enemies.Enemy;
 import touhou.players.PlayerSpell;
+import touhou.settings.Level1Settings;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -21,12 +24,12 @@ public class GameObject {
 
     protected ArrayList<GameObject> children;
     protected boolean isActive;
+    protected boolean isRenewing = false;
 
     private static Vector<GameObject> gameObjects = new Vector<>();
     private static Vector<GameObject> newGameObjects = new Vector<>();
 
     public static void runAll() {
-
         for (GameObject gameObject : gameObjects) {
             if (gameObject.isActive)
                 gameObject.run(new Vector2D(0, 0)); // TODO: Optimize
@@ -44,7 +47,7 @@ public class GameObject {
 
     public static void renderAll(Graphics2D g2d) {
         for (GameObject gameObject : gameObjects) {
-            if (gameObject.isActive)
+            if (gameObject.isActive && !gameObject.isRenewing)
                 gameObject.render(g2d);
         }
     }
@@ -61,6 +64,7 @@ public class GameObject {
     }
 
     public void run(Vector2D parentPosition) {
+        isRenewing = false;
         screenPosition = parentPosition.add(position);
         for (GameObject child: children) {
             if (child.isActive)
@@ -96,6 +100,13 @@ public class GameObject {
             this.position = position;
     }
 
+    public void reset(){
+        this.isActive = true;
+        this.isRenewing = true;
+        this.position.set(0,0);
+        this.screenPosition.set(0,0);
+    }
+
     public Renderer getRenderer() {
         return renderer;
     }
@@ -103,5 +114,29 @@ public class GameObject {
     public void setRenderer(Renderer renderer) {
         if (renderer != null)
             this.renderer = renderer;
+    }
+
+    public static void clearAll(){
+        gameObjects.clear();
+        newGameObjects.clear();
+        Physics.clearAll();
+        GameObjectPool.clearAll();
+    }
+
+    public Vector2D getScreenPosition() {
+        return screenPosition;
+    }
+
+    public void setScreenPosition(Vector2D screenPosition) {
+        this.screenPosition = screenPosition;
+    }
+
+    public int getEnemyNum() {
+        int enemyNum = 0;
+        for (GameObject gameObject : gameObjects) {
+            if (gameObject.isActive && gameObject instanceof Enemy)
+                ++enemyNum;
+        }
+        return enemyNum;
     }
 }
